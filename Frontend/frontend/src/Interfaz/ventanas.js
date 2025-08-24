@@ -25,11 +25,11 @@ export default function VentanaPrincipal() {
       const data = await response.json();
       
       if (data.success) {
-        // Guardar los datos de los jugadores en localStorage para acceder en la ventana de juego
+        
         localStorage.setItem('gameData', JSON.stringify({
           jugador1: jugador1,
           jugador2: jugador2,
-          numeroSecreto: data.numeroSecreto // si el backend lo envía
+          numeroSecreto: data.numeroSecreto 
         }));
         
         // Navegar a la ventana de juego

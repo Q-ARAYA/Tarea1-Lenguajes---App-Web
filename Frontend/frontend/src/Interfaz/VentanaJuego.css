@@ -80,6 +80,31 @@
     max-width: 300px;
 }
 
+/* Mensaje de retroalimentación */
+.message {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 1rem 2rem;
+    border-radius: 10px;
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-align: center;
+    backdrop-filter: blur(5px);
+    margin: 1rem 0;
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* Input para el número */
 .number-input {
     width: 100%;

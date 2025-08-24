@@ -5,10 +5,12 @@ import './VentanaJuego.css';
 function VentanaJuego() {
     const navigate = useNavigate();
     const [gameData, setGameData] = useState(null);
-    const [currentPlayer, setCurrentPlayer] = useState(1); // 1 or 2
+    const currentPlayer = 1;
     const [attempts, setAttempts] = useState(5);
     const [guessedNumber, setGuessedNumber] = useState(null);
     const [inputValue, setInputValue] = useState('');
+    const [jugadores, setJugadores] = useState({});
+
 
     useEffect(() => {
         // Recuperar los datos del juego del localStorage
@@ -48,6 +50,12 @@ function VentanaJuego() {
         }
     };
 
+    useEffect(() => {
+    fetch("http://localhost:3000/jugadores") // URL de tu backend
+      .then(res => res.json())
+      .then(data => setJugadores(data));
+    }, []);
+
     return (
         <div className={`game-container ${currentPlayer === 1 ? 'player1-bg' : 'player2-bg'}`}>
             {/* Efectos decorativos de fondo */}
@@ -60,7 +68,7 @@ function VentanaJuego() {
             
             <div className="game-content">
                 <h1 className="turn-info">
-                    Turno del Jugador {currentPlayer}
+                    Turno de {jugadores.jugador2}
                 </h1>
 
                 <div className="number-display">
