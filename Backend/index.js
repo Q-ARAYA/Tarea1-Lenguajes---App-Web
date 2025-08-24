@@ -33,11 +33,12 @@ app.get('/api/estado-juego', (req, res) => {
         success: true,
         jugadores: juego.jugadores,
         ronda: juego.ronda,
-        intentos: juego.intentos
+        intentos: juego.intentos,
+        numeroSecreto: juego.numeroSecreto
     });
 });
 
-// Ruta para verificar un intento
+
 app.post('/api/verificar-numero', (req, res) => {
     const { numero } = req.body;
     const resultado = juego.verificarIntento(parseInt(numero));
@@ -45,7 +46,8 @@ app.post('/api/verificar-numero', (req, res) => {
         message: resultado,
         success: true,
         intentos: juego.intentos,
-        ronda: juego.ronda
+        ronda: juego.ronda,
+        numeroSecreto: juego.numeroSecreto
     });
 });
 
