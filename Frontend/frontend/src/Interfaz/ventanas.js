@@ -1,3 +1,4 @@
+// ventanas.js
 import React, { useState } from "react";
 import { FaCrown, FaUser } from "react-icons/fa";
 import './ventanas.css';
@@ -24,8 +25,15 @@ export default function VentanaPrincipal() {
       const data = await response.json();
       
       if (data.success) {
+        // Guardar los datos de los jugadores en localStorage para acceder en la ventana de juego
+        localStorage.setItem('gameData', JSON.stringify({
+          jugador1: jugador1,
+          jugador2: jugador2,
+          numeroSecreto: data.numeroSecreto // si el backend lo envía
+        }));
         
-        
+        // Navegar a la ventana de juego
+        window.location.href = '/juego';
       } else {
         alert('❌ Error al iniciar el juego');
       }

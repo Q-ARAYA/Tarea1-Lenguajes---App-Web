@@ -18,6 +18,7 @@ class JuegoNumeros {
                 this.jugadores.jugador2 = jugador1;
             }
         console.log("Jugador 1: " + this.jugadores.jugador1 + ", Jugador 2: " + this.jugadores.jugador2 + ", Numero Secreto: " + this.numeroSecreto);
+        this.jugadores.jugadorActual = jugador1;
         
         return {
             success: true,
