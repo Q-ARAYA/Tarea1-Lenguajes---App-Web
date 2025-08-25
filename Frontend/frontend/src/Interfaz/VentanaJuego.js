@@ -13,6 +13,11 @@ function VentanaJuego() {
         message: ''
     });
     const [inputValue, setInputValue] = useState('');
+    const [ganador, setGanador] = useState(null);
+
+    useEffect(() => {
+        setGanador(null); // resetear ganador al montar el componente
+    }, []); 
 
     // Obtener el estado del juego del backend cada segundo
     useEffect(() => {
@@ -21,12 +26,18 @@ function VentanaJuego() {
                 const response = await fetch('http://localhost:5000/api/estado-juego');
                 const data = await response.json();
                 if (data.success) {
-                    setGameState(prev => ({
-                        ...prev,
-                        jugadores: data.jugadores,
-                        ronda: data.ronda,
-                        intentos: data.intentos,
-                    }));
+                    setGameState(prev => {
+                        // Si ya hay ganador, no sobrescribas el historial ni la ronda final
+                        if (ganador) return prev;
+
+                        return {
+                            ...prev,
+                            jugadores: data.jugadores,
+                            ronda: data.ronda,
+                            intentos: data.intentos,
+                            rondasHistorial: data.rondasHistorial || prev.rondasHistorial
+                        };
+                    });
                 } else {
                     navigate('/');
                 }
@@ -38,7 +49,28 @@ function VentanaJuego() {
         fetchGameState();
         const interval = setInterval(fetchGameState, 1000);
         return () => clearInterval(interval);
-    }, [navigate]);
+    }, [navigate, ganador]);
+
+    // Detectar fin de juego y consultar ganador
+    useEffect(() => {
+        if (gameState.ronda === 7) {
+            fetch('http://localhost:5000/api/ganador')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        setGanador(data.ganador);
+                        setGameState(prev => ({
+                            ...prev,
+                            rondasHistorial: data.rondasHistorial // <-- aquí guardas el historial
+                        }));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al obtener el ganador:', error);
+                    setGanador('Error al determinar el ganador');
+                });
+        }
+    }, [gameState.ronda]);
 
     // Determinar el jugador actual según la ronda
     const getCurrentPlayer = () => {
@@ -95,6 +127,7 @@ function VentanaJuego() {
                     ...prev,
                     intentos: data.intentos,
                     ronda: data.ronda,
+                    rondaGeneral: data.rondaGeneral,
                     message: data.message,
                     numeroSecreto: data.numeroSecreto
                 }));
@@ -117,61 +150,111 @@ function VentanaJuego() {
     };
 
     return (
-        <div className={`game-container ${gameState.ronda % 2 === 1 ? 'player2-bg' : 'player1-bg'}`}>
+        <div className={`game-container ${
+    ganador
+      ? ganador === gameState.jugadores.jugador1
+        ? 'player1-bg'
+        : ganador === gameState.jugadores.jugador2
+          ? 'player2-bg'
+          : ''
+      : gameState.ronda % 2 === 1
+        ? 'player1-bg'
+        : 'player2-bg'
+  }`}
+>
             {/* Efectos decorativos de fondo */}
             <div className="background-effect effect-1"></div>
             <div className="background-effect effect-2"></div>
-
             <div className="attempts-counter">
                 Intentos: {getIntentosRestantes()}
             </div>
+            <div className="ronda-general">
+                Ronda: {gameState.rondaGeneral || 1}
+            </div>
             <div className="game-content">
-                <h1 className="turn-info">
-                    Turno de {getCurrentPlayer()}
-                </h1>
-                <div className="number-display">
-                    {esperandoRonda
-                        ? (gameState.message === "¡Correcto!" ? '✔' : (gameState.message && gameState.message.includes('agotado') ? 'X' : '¿?'))
-                        : '¿?'}
-                </div>
-                {gameState.message && (
-                    <div className="message">
-                        {gameState.message}
-                    </div>
-                )}
-                <div className="input-section">
-                    <div className="input-group">
-                        {esperandoRonda ? (
-                            <button 
-                                className="submit-button"
-                                onClick={handleSubmit}
-                            >
-                                Comenzar nueva ronda
-                            </button>
-                        ) : (
-                            <>
-                                <input
-                                    type="number"
-                                    value={inputValue}
-                                    onChange={handleInputChange}
-                                    onKeyPress={handleKeyPress}
-                                    className="number-input"
-                                    placeholder="Ingresa un número"
-                                    min="1"
-                                    max="100"
-                                    disabled={getIntentosRestantes() === 0}
-                                />
-                                <button 
-                                    className="submit-button"
-                                    onClick={handleSubmit}
-                                    disabled={getIntentosRestantes() === 0}
-                                >
-                                    Aceptar
-                                </button>
-                            </>
+                {ganador ? (
+                    <>
+                        <h1 className="turn-info">{"El ganador es: " + ganador}</h1>
+                        {/* CUADRO COMPARATIVO DE RONDAS */}
+                        {gameState.rondasHistorial && gameState.rondasHistorial.length > 0 && (
+                            <div className="historial-rondas">
+                                <h2>Historial de Rondas</h2>
+                                <table>
+                                <thead>
+                                    <tr>
+                                    <th>Ronda</th>
+                                    <th>{gameState.jugadores.jugador1} <br /> Número / Intentos / Resultado</th>
+                                    <th>{gameState.jugadores.jugador2} <br /> Número / Intentos / Resultado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {gameState.rondasHistorial.map((r, index) => (
+                                    <tr key={index}>
+                                        <td>{r.rondaGeneral}</td>
+                                        <td>
+                                        {r.numeroSecretoJugador1} / {r.intentosJugador1} / {r.resultadoRondaParaJugador1}
+                                        </td>
+                                        <td>
+                                        {r.numeroSecretoJugador2} / {r.intentosJugador2} / {r.resultadoRondaParaJugador2}
+                                        </td>
+                                    </tr>
+                                    ))}
+                                </tbody>
+                                </table>
+                            </div>
                         )}
-                    </div>
-                </div>
+
+                    </>
+                ) : (
+                    <>
+                        <h1 className="turn-info">
+                            Turno de {getCurrentPlayer()}
+                        </h1>
+                        <div className="number-display">
+                            {esperandoRonda
+                                ? (gameState.message === "¡Correcto!" ? '✔' : (gameState.message && gameState.message.includes('agotado') ? 'X' : '¿?'))
+                                : '¿?'}
+                        </div>
+                        {gameState.message && (
+                            <div className="message">
+                                {gameState.message}
+                            </div>
+                        )}
+                        <div className="input-section">
+                            <div className="input-group">
+                                {esperandoRonda ? (
+                                    <button 
+                                        className="submit-button"
+                                        onClick={handleSubmit}
+                                    >
+                                        Comenzar nueva ronda
+                                    </button>
+                                ) : (
+                                    <>
+                                        <input
+                                            type="number"
+                                            value={inputValue}
+                                            onChange={handleInputChange}
+                                            onKeyPress={handleKeyPress}
+                                            className="number-input"
+                                            placeholder="Ingresa un número"
+                                            min="1"
+                                            max="100"
+                                            disabled={getIntentosRestantes() === 0}
+                                        />
+                                        <button 
+                                            className="submit-button"
+                                            onClick={handleSubmit}
+                                            disabled={getIntentosRestantes() === 0}
+                                        >
+                                            Aceptar
+                                        </button>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    </>
+                )}
             </div>
         </div>
     );

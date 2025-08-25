@@ -1,0 +1,42 @@
+[
+  {
+    "fecha": "2025-08-25T02:34:54.348Z",
+    "jugadores": {
+      "jugador1": "quiriat",
+      "jugador2": "devo",
+      "intentos1": 5,
+      "intentos2": 0,
+      "jugadorActual": "quiriat"
+    },
+    "resultadoFinal": "devo",
+    "historialRondas": [
+      {
+        "rondaGeneral": 1,
+        "numeroSecretoJugador1": 79,
+        "intentosJugador1": 5,
+        "resultadoRondaParaJugador1": "X",
+        "numeroSecretoJugador2": 68,
+        "intentosJugador2": 0,
+        "resultadoRondaParaJugador2": "✔"
+      },
+      {
+        "rondaGeneral": 2,
+        "numeroSecretoJugador1": 32,
+        "intentosJugador1": 5,
+        "resultadoRondaParaJugador1": "✔",
+        "numeroSecretoJugador2": 75,
+        "intentosJugador2": 0,
+        "resultadoRondaParaJugador2": "✔"
+      },
+      {
+        "rondaGeneral": 3,
+        "numeroSecretoJugador1": 39,
+        "intentosJugador1": 5,
+        "resultadoRondaParaJugador1": "✔",
+        "numeroSecretoJugador2": 40,
+        "intentosJugador2": 0,
+        "resultadoRondaParaJugador2": "✔"
+      }
+    ]
+  }
+]

@@ -38,7 +38,7 @@ app.get('/api/estado-juego', (req, res) => {
     });
 });
 
-
+// Ruta para verificar intento
 app.post('/api/verificar-numero', (req, res) => {
     const { numero } = req.body;
     const resultado = juego.verificarIntento(parseInt(numero));
@@ -47,7 +47,26 @@ app.post('/api/verificar-numero', (req, res) => {
         success: true,
         intentos: juego.intentos,
         ronda: juego.ronda,
+        rondaGeneral: juego.rondaGeneral,
         numeroSecreto: juego.numeroSecreto
+    });
+});
+
+// Ruta para consultar el ganador
+app.get('/api/ganador', (req, res) => {
+    const ganador = juego.indicarGanador();
+    res.json({
+        success: true,
+        ganador,
+        rondasHistorial: juego.historialRondas
+    });
+});
+
+// Ruta para obtener el historial completo
+app.get('/api/historial', (req, res) => {
+    res.json({
+        success: true,
+        historial: juego.obtenerHistorial()
     });
 });
 
